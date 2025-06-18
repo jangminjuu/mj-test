@@ -3,20 +3,15 @@ import google.generativeai as genai
 from github import Github
 
 def get_pr_details_for_summary(repo, pr_number):
-    """PR의 제목, 본문, 커밋 메시지, 그리고 diff 내용을 가져와 요약에 사용합니다."""
     pull_request = repo.get_pull(pr_number)
-
     content_to_summarize = f"PR Title: {pull_request.title}\n"
     content_to_summarize += f"PR Body: {pull_request.body or 'No description provided.'}\n\n"
-
-    # 커밋 메시지 추가 (최대 5개 커밋)
     content_to_summarize += "Recent Commits:\n"
     for i, commit in enumerate(pull_request.get_commits()):
-        if i >= 5: # 너무 많은 커밋은 요약에 방해가 될 수 있으므로 제한
+        if i >= 5:
             break
         content_to_summarize += f"- {commit.commit.message}\n"
     
-    # --- PR Diff 내용 추가 ---
     try:
         diff_content = pull_request.get_patch()
         if diff_content:
@@ -27,11 +22,9 @@ def get_pr_details_for_summary(repo, pr_number):
     except Exception as e:
         print(f"Error fetching PR diff: {e}")
         content_to_summarize += "\nError fetching code changes (diff).\n"
-
     return content_to_summarize
 
 def summarize_with_gemini(api_key, text_to_summarize):
-    """Google Gemini API를 사용하여 텍스트를 요약합니다."""
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel('gemini-pro') 
 
@@ -41,7 +34,7 @@ def summarize_with_gemini(api_key, text_to_summarize):
             f"Summarize the following pull request details concisely, highlighting the main changes, purpose, and potential impact.\n"
             f"Provide the summary in a clear and easy-to-read markdown format with bullet points if applicable.\n\n"
             f"Pull Request Details:\n{text_to_summarize}\n\n"
-            f"Concise Summary:",
+            f"Concise Summary:"
         )
         return response.text.strip() 
     except Exception as e:
@@ -56,10 +49,10 @@ def main():
     repo_name = os.environ.get("REPO_NAME")
 
     if not github_token:
-        print("GITHUB_TOKEN 환경 변수가 설정되지 않았습니다.")
+        print("GITHUB_TOKEN environment variable not set.")
         exit(1)
     if not gemini_api_key:
-        print("GEMINI_API_KEY 환경 변수가 설정되지 않았습니다. GitHub Secrets에 추가해 주세요.")
+        print("GEMINI_API_KEY environment variable not set. Please add it to GitHub Secrets.")
         exit(1)
 
     g = Github(github_token)

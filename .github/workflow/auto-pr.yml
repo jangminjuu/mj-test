@@ -1,0 +1,49 @@
+name: Auto Create PR for Changes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Make a dummy change to trigger a PR
+        run: |
+          echo "Automated update from CI at $(date '+%Y-%m-%d %H:%M:%S')" >> README.md
+          echo "---" >> README.md
+
+      - name: Create Pull Request if changes exist
+        id: create_pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: Automated README update"
+          title: "Automated Update: README.md for AI Summary Test"
+          body: |
+            이 Pull Request는 AI 요약 기능을 테스트하기 위해 GitHub Actions에 의해 자동으로 생성되었습니다.
+            
+            * 변경 사항: README.md 파일에 현재 시간 스탬프가 추가되었습니다.
+          branch: "auto-pr-test/$(date +%Y%m%d%H%M%S)"
+          delete-branch: true
+          
+      - name: Log PR details
+        if: steps.create_pr.outputs.pull-request-number
+        run: |
+          echo "Pull Request Number: ${{ steps.create_pr.outputs.pull-request-number }}"
+          echo "Pull Request URL: ${{ steps.create_pr.outputs.pull-request-url }}"
