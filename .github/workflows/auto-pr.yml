@@ -1,13 +1,10 @@
-name: Auto Create PR for Changes
+name: Auto Create PR with AI Summary
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - feature/*
-      - bugfix/*
-
+  workflow_run:
+    workflows: ["deploy"]          
+    types:
+      - completed
 jobs:
   create_pr:
     runs-on: ubuntu-latest
@@ -26,27 +23,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Make a dummy change to trigger a PR
+      - name: Make dummy change
         run: |
-          echo "Automated update from CI at $(date '+%Y-%m-%d %H:%M:%S')" >> README.md
-          echo "---" >> README.md
+          echo "Automated update at $(date)" >> README.md
 
-      - name: Create Pull Request if changes exist
-        id: create_pr
+      - name: Generate AI Summary
+        id: ai_summary
+        run: |
+          SUMMARY=$(python .github/scripts/summarize_pr.py)
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          REPO_FULL_NAME: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+
+      - name: Create Pull Request with AI Summary
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: Automated README update"
-          title: "Automated Update: README.md for AI Summary Test"
-          body: |
-            이 Pull Request는 AI 요약 기능을 테스트하기 위해 GitHub Actions에 의해 자동으로 생성되었습니다.
-            
-            * 변경 사항: README.md 파일에 현재 시간 스탬프가 추가되었습니다.
-          branch: "auto-pr-test-${{ github.run_number }}"
+          commit-message: "docs: AI-generated update"
+          title: "🤖 AI Summary PR"
+          body: ${{ steps.ai_summary.outputs.summary }}
+          branch: "auto-pr-ai-${{ github.run_number }}"
+          base: develop
           delete-branch: true
-          
-      - name: Log PR details
-        if: steps.create_pr.outputs.pull-request-number
-        run: |
-          echo "Pull Request Number: ${{ steps.create_pr.outputs.pull-request-number }}"
-          echo "Pull Request URL: ${{ steps.create_pr.outputs.pull-request-url }}"
+          labels: "ai-summary, auto-pr"

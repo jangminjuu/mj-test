@@ -3,12 +3,7 @@ name: PR AI Summary
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-    branches:
-      - main
-      - develop
-      - feature/*
-      - bugfix/*
-
+    
 jobs:
   summarize_pr:
     runs-on: ubuntu-latest
