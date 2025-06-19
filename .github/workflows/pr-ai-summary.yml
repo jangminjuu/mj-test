@@ -3,11 +3,6 @@ name: PR AI Summary
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-    branches:
-      - main
-      - develop
-      - feature/*
-      - bugfix/*
 
 jobs:
   summarize_pr:
@@ -18,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
