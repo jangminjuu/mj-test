@@ -2,7 +2,7 @@ name: Auto Create PR with AI Summary
 
 on:
   workflow_run:
-    workflows: ["deploy"]          
+    workflows: ["deploy"]
     types:
       - completed
 jobs:
