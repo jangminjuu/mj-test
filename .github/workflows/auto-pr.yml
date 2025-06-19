@@ -42,7 +42,7 @@ jobs:
             이 Pull Request는 AI 요약 기능을 테스트하기 위해 GitHub Actions에 의해 자동으로 생성되었습니다.
             
             * 변경 사항: README.md 파일에 현재 시간 스탬프가 추가되었습니다.
-          branch: "auto-pr-test/$(date +%Y%m%d%H%M%S)"
+          branch: "auto-pr-test-${{ github.run_number }}"
           delete-branch: true
           
       - name: Log PR details
