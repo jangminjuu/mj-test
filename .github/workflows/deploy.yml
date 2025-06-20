@@ -2,7 +2,13 @@ name: Deploy React App to GitHub Pages
 
 on:
   push:
+     branches:
+      - main # PR 대상 브랜치
+      - feature/* # PR 대상 브랜치 (와일드카드 사용)
   pull_request:
+    branches:
+      - main # PR 대상 브랜치
+      - feature/* # PR 대상 브랜치 (와일드카드 사용)
 
 jobs:
   build-and-deploy:

@@ -3,6 +3,9 @@ name: PR AI Summary
 on:
   pull_request:
     types: [opened, reopened, synchronize] # PR이 열리거나 업데이트될 때 트리거
+     branches:
+      - main # PR 대상 브랜치
+      - feature/* # PR 대상 브랜치 (와일드카드 사용)
 
 jobs:
   summarize_pr:

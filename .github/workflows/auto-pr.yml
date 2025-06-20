@@ -1,7 +1,10 @@
-name: Auto Create PR
+name: auto-pr
 
 on:
   push: 
+    branches:
+      - main # PR 대상 브랜치
+      - feature/* # PR 대상 브랜치 (와일드카드 사용)
 
 jobs:
   create_pr:
