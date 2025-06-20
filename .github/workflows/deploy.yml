@@ -1,7 +1,8 @@
-name: deploy
+name: Deploy React App to GitHub Pages
 
 on:
   push:
+  pull_request:
 
 jobs:
   build-and-deploy:

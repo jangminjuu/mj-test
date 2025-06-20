@@ -1,10 +1,8 @@
-name: Auto Create PR with AI Summary
+name: Auto Create PR
 
 on:
-  workflow_run:
-    workflows: ["deploy"]
-    types:
-      - completed
+  push: 
+
 jobs:
   create_pr:
     runs-on: ubuntu-latest
@@ -23,31 +21,24 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Make dummy change
+      - name: Make a dummy change to trigger a PR
         run: |
-          echo "Automated update at $(date)" >> README.md
+          echo "Automated update at $(date '+%Y-%m-%d %H:%M:%S')" >> README.md
+          echo "---" >> README.md
 
-      - name: Generate AI Summary
-        id: ai_summary
-        run: |
-          SUMMARY=$(python .github/scripts/summarize_pr.py)
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo "$SUMMARY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          REPO_FULL_NAME: ${{ github.repository }}
-          BRANCH_NAME: ${{ github.ref_name }}
-
-      - name: Create Pull Request with AI Summary
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: AI-generated update"
-          title: "🤖 AI Summary PR"
-          body: ${{ steps.ai_summary.outputs.summary }}
-          branch: "auto-pr-ai-${{ github.run_number }}"
-          base: develop
+          commit-message: "docs: Automated README update"
+          title: "Automated PR: README.md Update"
+          body: |
+            이 Pull Request는 GitHub Actions에 의해 자동으로 생성되었습니다.
+            
+            * 변경 사항: README.md 파일에 타임스탬프가 추가되었습니다.
+            
+            AI 요약은 이 PR이 생성된 후 별도로 추가됩니다.
+          branch: "auto-pr-test-${{ github.run_number }}"
+          base: main
           delete-branch: true
-          labels: "ai-summary, auto-pr"
+          labels: "auto-pr"

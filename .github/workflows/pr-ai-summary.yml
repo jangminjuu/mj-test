@@ -2,38 +2,37 @@ name: PR AI Summary
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize] # PR이 열리거나 업데이트될 때 트리거
 
 jobs:
   summarize_pr:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      pull-requests: write # PR 본문 수정 권한
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for accurate diff
+          fetch-depth: 0 # PR의 모든 커밋 히스토리를 가져옵니다.
 
-      - name: Set up Python
+      - name: Set up Python # 파이썬 환경 설정 및 ID 부여
         id: setup-python-env
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install Python Dependencies # 라이브러리 설치
         run: |
           "${{ steps.setup-python-env.outputs.python-path }}/bin/python" -m pip install --upgrade pip
           "${{ steps.setup-python-env.outputs.python-path }}/bin/pip" install --no-cache-dir google-generativeai PyGithub
 
-      - name: Get PR Details and Summarize
+      - name: Get PR Details and Summarize # 스크립트 실행
         run: |
           "${{ steps.setup-python-env.outputs.python-path }}/bin/python" .github/scripts/summarize_pr.py
-           
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ github.event.pull_request.number }} # <- pull_request 이벤트이므로 이 값은 항상 유효합니다.
           REPO_OWNER: ${{ github.repository_owner }}
           REPO_NAME: ${{ github.event.repository.name }}
