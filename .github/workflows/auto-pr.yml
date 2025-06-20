@@ -29,7 +29,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.MJ_PAT_TOKEN }}
           commit-message: "docs: Automated README update"
           title: "Automated PR: README.md Update"
           body: |
