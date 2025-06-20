@@ -5,6 +5,9 @@ on:
     branches:
       - main # PR 대상 브랜치
       - feature/* # PR 대상 브랜치 (와일드카드 사용)
+permissions:
+  contents: write # PR 생성 및 수정 권한
+  pull-requests: write # PR 본문 수정 권한
 
 jobs:
   create_pr:
