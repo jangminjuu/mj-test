@@ -3,11 +3,12 @@ name: auto-pr
 on:
   push: 
     branches:
-      - main # PR 대상 브랜치
-      - feature/* # PR 대상 브랜치 (와일드카드 사용)
+      - main
+      - feature/*
+
 permissions:
-  contents: write # PR 생성 및 수정 권한
-  pull-requests: write # PR 본문 수정 권한
+  contents: write
+  pull-requests: write
 
 jobs:
   create_pr:
@@ -26,6 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.MJ_PAT_TOKEN }}@github.com/jangminjuu/mj-test.git
 
       - name: Make a dummy change to trigger a PR
         run: |
